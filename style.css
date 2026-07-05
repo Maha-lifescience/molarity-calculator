@@ -1,0 +1,94 @@
+body{
+    background-color:#eaf4ff;
+    font-family:Arial, sans-serif;
+}
+
+.container{
+    width:400px;
+    margin:50px auto;
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 0 15px rgba(0,0,0,0.2);
+}
+
+h1{
+    text-align:center;
+    color:#cc0052;
+}
+
+label{
+    display:block;
+    margin-top:15px;
+    font-weight:bold;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    background:#0066cc;
+    color:white;
+    border:none;
+    border-radius:5px;
+    font-size:18px;
+    cursor:pointer;
+}
+ 
+button:hover{
+    background:#004d99;
+     transform:scale(1.03);
+}
+
+h2{
+    text-align:center;
+}
+
+#result{
+    text-align:center;
+    font-size:22px;
+    color:green;
+    font-weight:bold;
+}
+
+.formula{
+    text-align: center;
+    color: #555;
+    font-style: italic;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+.description{
+    text-align: center;
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.result-box{
+    background:#f8fbff;
+    border:2px solid #0077cc;
+    border-radius:12px;
+    padding:20px;
+    margin-top:20px;
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+    color:green;
+}
+.footer{
+    text-align:center;
+    color:#666;
+    margin-top:30px;
+    font-size:15px;
+}
