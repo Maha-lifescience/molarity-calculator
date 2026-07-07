@@ -1,50 +1,1430 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Molarity Calculator</title>
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2784/2784487.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Molarity &amp; Solution Prep Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#ffffff;
+    --panel:#ffffff;
+    --panel-2:#f2f5f4;
+    --line:#dde4e2;
+    --paper:#eee7d8;
+    --teal:#6513fd;
+    --teal-dim:#bfd2e0;
+    --amber:#b92a38;
+    --text:#2132ed;
+    --text-soft:#201730;
+    --text-faint:#573a3a;
+    --danger:#347cb3;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+linear-gradient(180deg,#f5fbff 0%,#ffffff 100%);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    padding:48px 20px 80px;
+  }
+  .wrap{max-width:1200px;margin:0 auto;}
 
-    <link rel="stylesheet" href="style.css">
+  header.masthead{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:22px;
+    margin-bottom:36px;
+    flex-wrap:wrap;
+  }
+  .masthead-title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(28px, 4vw, 40px);
+    letter-spacing:-0.01em;
+    line-height:1.05;
+  }
+  .masthead-title em{
+    font-style:italic;
+    color:var(--teal);
+    font-weight:500;
+  }
+  .masthead-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:18px;
+    color:var(--text-faint);
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    margin-top:6px;
+  }
+  .masthead-formula{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--text-soft);
+    font-size:16px;
+    text-align:right;
+    line-height:1.6;
+  }
+  .masthead-formula .row{display:flex;gap:14px;justify-content:flex-end;}
+  .masthead-formula .tag{
+    color:var(--amber);
+  }
+
+  /* Tabs styled as reagent-label selectors */
+  .tabs{
+    display:flex;
+    gap:10px;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+  }
+  .tab{
+    flex:1 1 220px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 1px 2px rgba(22,33,31,0.04);
+  }
+  .tab:hover{border-color:var(--teal-dim);}
+  .tab:focus-visible{outline:2px solid var(--teal); outline-offset:2px;}
+  .tab{
+    transition:.3s;
+}
+
+.tab:hover{
+    transform:translateY(-4px);
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+.tab.active{
+    background:#6513fd;
+    color:white;
+    border:none;
+}
+
+.tab.active .eq{
+    color:white;
+}
+
+.tab.active .label{
+    color:white;
+}
+  .tab .eq{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--amber);
+    display:block;
+    margin-bottom:4px;
+  }
+  .tab .label{
+    font-size:13px;
+    color:var(--text-soft);
+  }
+  .tab.active .label{color:var(--text);}
+
+  /* Main layout: form + graduated cylinder signature */
+  .stage{
+    display:grid;
+    grid-template-columns:1fr 140px;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:720px){
+    .stage{grid-template-columns:1fr;}
+    .cylinder-col{order:-1; display:flex; justify-content:center;}
+  }
+
+  .panel{
+    background:white;
+    border:none;
+    border-radius:20px;
+    padding:45px;
+    box-shadow:0 20px 50px rgba(0,0,0,.08);
+}
+.panel{
+    transition:0.3s ease;
+}
+
+.panel:hover{
+    transform:translateY(-5px);
+    box-shadow:0 35px 70px rgba(0,0,0,.12);
+}
+  .panel h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font: size 22px;
+    margin:0 0 4px;
+  }
+  .panel .desc{
+    color:var(--text-soft);
+    font-size:14px;
+    margin:0 0 24px;
+    line-height:1.5;
+  }
+
+  .field-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px 20px;
+  }
+  @media (max-width:520px){.field-grid{grid-template-columns:1fr;}}
+
+  .field{display:flex; flex-direction:column; gap:12px;}
+  .field label{
+    font-size:16px;
+    text-transform:capitalize;
+    letter-spacing:0.05em;
+    color:var(--text-faint);
+    font-weight:500;
+  }
+  .field .input-row{
+    display:flex;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--panel-2);
+    overflow:hidden;
+    transition:border-color .15s ease;
+  }
+  .field .input-row:focus-within{border-color:var(--teal);}
+  .field input{
+    flex:1;
+    background:transparent;
+    border:none;
+    color:var(--text);
+    font-family:'IBM Plex Mono', monospace;
+    font: size 14px;
+    padding:16px 14px;
+    min-width:0;
+  }
+  .field input:focus{outline:none;}
+  .field select{
+    background:#e7edeb;
+    border:none;
+    border-left:1px solid var(--line);
+    color:var(--text-soft);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    padding:0 18px;
+  }
+  .field select:focus{outline:2px solid var(--teal); outline-offset:-2px;}
+
+  .buttons{
+    grid-column:1/-1;
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:4px;
+  }
+  .reset-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    background:linear-gradient(135deg, #6513fd 0%, #8b3ffb 100%);
+    border:none;
+    color:#ffffff;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    padding:10px 20px;
+    border-radius:24px;
+    cursor:pointer;
+    box-shadow:0 4px 14px rgba(101,19,253,0.28);
+    transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .reset-btn svg{
+    width:14px; height:14px;
+    transition:transform .35s ease;
+  }
+  .reset-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(101,19,253,0.38);
+    filter:brightness(1.06);
+  }
+  .reset-btn:hover svg{transform:rotate(-90deg);}
+  .reset-btn:active{
+    transform:translateY(0) scale(0.96);
+    box-shadow:0 3px 10px rgba(101,19,253,0.3);
+  }
+
+  .copy-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    background:#ffffff;
+    border:1.5px solid #0ea5a5;
+    color:#0ea5a5;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    padding:9px 18px;
+    border-radius:24px;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .copy-btn svg{width:14px; height:14px;}
+  .copy-btn:hover{
+    background:#0ea5a5;
+    color:#ffffff;
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(14,165,165,0.3);
+  }
+  .copy-btn:active{transform:translateY(0) scale(0.96);}
+  .copy-btn.copied{
+    background:#0ea5a5;
+    color:#ffffff;
+  }
+
+  .pdf-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    background:#ffffff;
+    border:1.5px solid #b9702a;
+    color:#b9702a;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    padding:9px 18px;
+    border-radius:24px;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .pdf-btn svg{width:14px; height:14px;}
+  .pdf-btn:hover{
+    background:#b9702a;
+    color:#ffffff;
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(185,112,42,0.3);
+  }
+  .pdf-btn:active{transform:translateY(0) scale(0.96);}
+
+  /* Printable report — hidden on screen, shown only when printing/saving as PDF */
+  #print-report{ display:none; }
+  @media print{
+    body *{ visibility:hidden; }
+    #print-report, #print-report *{ visibility:visible; }
+    #print-report{
+      display:block;
+      position:absolute;
+      top:0; left:0;
+      width:100%;
+      padding:30px 40px;
+      font-family:'IBM Plex Sans', sans-serif;
+      color:#111;
+    }
+    .pr-head{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      border-bottom:2px solid #6513fd;
+      padding-bottom:12px;
+      margin-bottom:20px;
+    }
+    .pr-head h1{
+      font-family:'Fraunces', serif;
+      font-size:24px;
+      margin:0;
+      color:#6513fd;
+    }
+    .pr-head span{
+      font-family:'IBM Plex Mono', monospace;
+      font-size:12px;
+      color:#555;
+    }
+    .pr-section-title{
+      font-family:'IBM Plex Mono', monospace;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      color:#888;
+      margin:22px 0 8px;
+    }
+    .pr-inputs{
+      width:100%;
+      border-collapse:collapse;
+      font-size:14px;
+    }
+    .pr-inputs td{
+      padding:7px 0;
+      border-bottom:1px solid #eee;
+    }
+    .pr-inputs td:first-child{ color:#555; }
+    .pr-inputs td:last-child{
+      text-align:right;
+      font-family:'IBM Plex Mono', monospace;
+      font-weight:600;
+    }
+    .pr-result{
+      background:#f8f6fe;
+      border:1.5px solid #6513fd;
+      border-radius:10px;
+      padding:18px 20px;
+      margin-top:8px;
+    }
+    .pr-result .pr-result-label{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      color:#6513fd;
+      font-weight:600;
+    }
+    .pr-result .pr-result-value{
+      font-family:'IBM Plex Mono', monospace;
+      font-size:28px;
+      font-weight:700;
+      color:#111;
+      margin-top:4px;
+    }
+    .pr-steps{
+      margin-top:16px;
+      font-family:'IBM Plex Mono', monospace;
+      font-size:12.5px;
+      color:#444;
+      line-height:1.8;
+      border-left:2px solid #d9c8fb;
+      padding-left:12px;
+      white-space:pre-line;
+    }
+    .pr-footer{
+      margin-top:36px;
+      padding-top:14px;
+      border-top:1px solid #ddd;
+      font-family:'IBM Plex Mono', monospace;
+      font-size:11px;
+      color:#888;
+      text-align:center;
+    }
+  }
+
+  .quickfill{
+    grid-column:1/-1;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:linear-gradient(135deg, rgba(101,19,253,0.06), rgba(139,63,251,0.02));
+    border:1px dashed #d9c8fb;
+    border-radius:10px;
+    padding:10px 14px;
+    margin-bottom:4px;
+  }
+  .quickfill svg{width:16px;height:16px;color:#5a01ff;flex-shrink:0;}
+  .quickfill label{
+    font-size:12px;
+    color:#1904d3;
+    font-weight:600;
+    white-space:nowrap;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  .quickfill select{
+    flex:1;
+    background:#ffffff;
+    border:1px solid #e3d8fb;
+    border-radius:8px;
+    padding:8px 10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--text);
+  }
+  .quickfill select:focus{outline:2px solid #6513fd; outline-offset:-2px;}
+
+  /* Calculation history */
+  .history-toggle{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    background:#ffffff;
+    border:1px solid var(--line);
+    color:var(--text-soft);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    font-weight:600;
+    padding:9px 16px;
+    border-radius:20px;
+    cursor:pointer;
+    margin-bottom:18px;
+    transition:border-color .15s ease, color .15s ease, transform .1s ease;
+  }
+  .history-toggle svg{width:14px;height:14px;}
+  .history-toggle:hover{border-color:#6513fd; color:#6513fd;}
+  .history-panel{
+    background:#ffffff;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px 22px;
+    margin-bottom:24px;
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+  }
+  .history-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .history-head h3{
+    font-family:'Fraunces', serif;
+    font-size:16px;
+    margin:0;
+    color:var(--text);
+  }
+  .history-clear{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:#b92a38;
+    background:none;
+    border:none;
+    cursor:pointer;
+    text-decoration:underline;
+    padding:0;
+  }
+  .history-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-height:220px;
+    overflow-y:auto;
+  }
+  .history-item{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    padding:8px 10px;
+    background:#f8f6fe;
+    border-radius:8px;
+  }
+  .history-item .h-mode{
+    color:#6513fd;
+    font-weight:600;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    flex-shrink:0;
+  }
+  .history-item .h-value{
+    color:var(--text);
+    font-weight:600;
+    flex:1;
+    text-align:right;
+  }
+  .history-item .h-time{
+    color:#94a3b8;
+    font-size:11px;
+    flex-shrink:0;
+  }
+  .history-empty{
+    color:#94a3b8;
+    font-size:13px;
+    font-family:'IBM Plex Mono', monospace;
+    text-align:center;
+    padding:16px 0;
+  }
+
+  .divider{
+    grid-column:1/-1;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    color:#444;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:18px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:4px;
+    margin:18px 0;
+}
+  .divider::before, .divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+
+  .result{
+    margin-top:30px;
+    background:#ffffff;
+    border:1px solid #dbeafe;
+    border-radius:18px;
+    padding:35px;
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+}
+  .result-label{
+    font-size:18px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:#1459ef;
+    font-weight:600;
+    margin-bottom:12px;
+}
+ .result-value{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:60px;
+    color:#02113b;
+    font-weight:700;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+}
+  .result-value .unit{
+    font-size:28px;
+    color:#000205;
+    font-weight:500;
+}
+  .result-note{
+    margin-top:20px;
+    text-align:center;
+    color:#64748b;
+    font-size:16px;
+}
+  .result-note.warn{color:var(--danger);}
+  .result.empty .result-value{
+    color:#94a3b8;
+    font-size:22px;
+    font-weight:500;
+}
+  .steps{
+    margin-top:16px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--text-faint);
+    line-height:1.7;
+    border-left:2px solid var(--teal-dim);
+    padding-left:12px;
+  }
+  .steps div span{color:var(--text-soft);}
+
+  /* Signature: graduated cylinder that fills based on volume */
+  .cylinder-col{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    padding-top:6px;
+  }
+  .cylinder-caption{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-faint);
+    text-align:center;
+    letter-spacing:0.04em;
+  }
+  .cylinder-caption b{color:var(--amber); font-weight:500;}
+
+  footer{
+    margin-top:70px;
+    padding:35px;
+    background:#16211f;
+    color:white;
+    border-radius:20px;
+    text-align:center;
+    font-size:18px;
+}
+
+  .sr-only{
+    position:absolute; width:1px; height:1px;
+    overflow:hidden; clip:rect(0,0,0,0);
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    .fill{transition:height .5s cubic-bezier(.4,0,.2,1);}
+    .panel{transition:border-color .2s ease;}
+  }
+</style>
 </head>
-
 <body>
+<div class="wrap">
 
-    <div class="container">
+  <header class="masthead">
+    <div>
+      <div class="masthead-title">BioCalc <em>Lab</em></div>
+      <div class="masthead-sub">Molarity &middot; Mass &middot; Dilution</div>
+    </div>
+    <div class="masthead-formula">
+      <div class="row"><span class="tag">n</span> = C &times; V</div>
+      <div class="row"><span class="tag">m</span> = n &times; MW</div>
+      <div class="row"><span class="tag">C&#8321;V&#8321;</span> = <span class="tag">C&#8322;V&#8322;</span></div>
+    </div>
+  </header>
 
-        <h1>🧪 Molarity Calculator</h1>
-    <p class="formula">
-    Formula: Molarity = Moles ÷ Volume (L)
+  <nav class="tabs" role="tablist" aria-label="Calculator mode">
+    <div class="tab active" role="tab" aria-selected="true" tabindex="0" data-mode="molarity">
+      <span class="eq">C = n / V</span>
+      <span class="label">Calculate molarity from mass</span>
+    </div>
+    <div class="tab" role="tab" aria-selected="false" tabindex="0" data-mode="mass">
+      <span class="eq">m = C &middot; V &middot; MW</span>
+      <span class="label">Calculate Required Mass</span>
+    </div>
+    <div class="tab" role="tab" aria-selected="false" tabindex="0" data-mode="dilution">
+      <span class="eq">C&#8321;V&#8321; = C&#8322;V&#8322;</span>
+      <span class="label">💧 Dilution Calculator</span>
+    </div>
+  </nav>
+
+  <button type="button" class="history-toggle" id="history-toggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+    <span id="history-toggle-label">Show Recent Calculations</span>
+  </button>
+
+  <div class="history-panel" id="history-panel" style="display:none;">
+    <div class="history-head">
+      <h3>🧪 Recent Calculations</h3>
+      <button type="button" class="history-clear" id="history-clear">Clear all</button>
+    </div>
+    <div class="history-list" id="history-list">
+      <div class="history-empty">No calculations yet — results will appear here.</div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="panel">
+
+      <!-- MODE 1: Molarity from mass -->
+      <section id="mode-molarity">
+<h2>Molarity from mass</h2>
+<p class="desc">
+Calculate solution molarity from the solute mass, molecular weight, and final solution volume.
 </p>
-<p class="description">
-    Molarity is the number of moles of solute dissolved in one liter of solution.
-</p>
-
-        <label for="moles">Enter Moles</label>
-        <input type="number" id="moles" placeholder="Example: 2">
-
-        <label for="volume">Enter Volume (L)</label>
-        <input type="number" id="volume" placeholder="Example: 0.5">
-
-       <button onclick="calculateMolarity()">Calculate</button>
-
-
-<button onclick="resetCalculator()">Reset</button>
-        <h2>Result</h2>
-
-        <div class="result-box">
-    <p id="result">Molarity = ? mol/L</p>
+<div class="field-grid">
+<div class="quickfill">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v5.2L4.8 17.5A2 2 0 0 0 6.6 20.5h10.8a2 2 0 0 0 1.8-3L14 8.2V3"/></svg>
+  <label for="m1-reagent">Quick-fill</label>
+  <select id="m1-reagent">
+    <option value="">Custom / manual MW&hellip;</option>
+  </select>
 </div>
+<div class="field">
+            <label for="m1-mass">Mass of solute</label>
+            <div class="input-row">
+              <input type="number" id="m1-mass" inputmode="decimal" placeholder="e.g. 58.44" step="any" min="0">
+              <select id="m1-mass-unit">
+                <option value="1">g</option>
+                <option value="0.001">mg</option>
+                <option value="1000">kg</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="m1-mw">Molar weight (MW)</label>
+            <div class="input-row">
+              <input type="number" id="m1-mw" inputmode="decimal" placeholder="0.00" step="any" min="0">
+              <select disabled><option>g/mol</option></select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="m1-vol">Final volume</label>
+            <div class="input-row">
+              <input type="number" id="m1-vol" inputmode="decimal" placeholder="0.00" step="any" min="0">
+              <select id="m1-vol-unit">
+                <option value="1">L</option>
+                <option value="0.001" selected>mL</option>
+                <option value="0.000001">&micro;L</option>
+              </select>
+            </div>
+          </div>
+          <div class="buttons">
+    <button type="button" class="copy-btn" id="m1-copy">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+      <span id="m1-copy-label">Copy Result</span>
+    </button>
+    <button type="button" class="pdf-btn" id="m1-pdf">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      <span id="m1-pdf-label">Save PDF</span>
+    </button>
+    <button type="button" class="reset-btn" onclick="resetMolarity()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      Reset
+    </button>
+</div>
+        </div>
+        <div class="result empty" id="m1-result">
+          <div class="result-label">Molarity</div>
+          <div class="result-value"><span id="m1-value">Enter values to calculate</span></div>
+          <div class="steps" id="m1-steps"></div>
+        </div>
+      </section>
+
+      <!-- MODE 2: Mass needed for target molarity -->
+      <section id="mode-mass" style="display:none;">
+        <h2>Mass to weigh out</h2>
+        <p class="desc">Enter the concentration and volume you need &mdash; get the mass of solute to weigh on the balance.</p>
+        <div class="field-grid">
+          <div class="quickfill">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v5.2L4.8 17.5A2 2 0 0 0 6.6 20.5h10.8a2 2 0 0 0 1.8-3L14 8.2V3"/></svg>
+  <label for="m2-reagent">Quick-fill</label>
+  <select id="m2-reagent">
+    <option value="">Custom / manual MW&hellip;</option>
+  </select>
+</div>
+          <div class="field">
+            <label for="m2-conc">Target molarity</label>
+            <div class="input-row">
+              <input type="number" id="m2-conc" inputmode="decimal" placeholder="0.00" step="any" min="0">
+              <select id="m2-conc-unit">
+                <option value="1">M</option>
+                <option value="0.001">mM</option>
+                <option value="0.000001">&micro;M</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="m2-mw">Molar weight (MW)</label>
+            <div class="input-row">
+              <input type="number" id="m2-mw" inputmode="decimal" placeholder="0.00" step="any" min="0">
+              <select disabled><option>g/mol</option></select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="m2-vol">Final volume</label>
+            <div class="input-row">
+              <input type="number" id="m2-vol" inputmode="decimal" placeholder="0.00" step="any" min="0">
+              <select id="m2-vol-unit">
+                <option value="1">L</option>
+                <option value="0.001" selected>mL</option>
+                <option value="0.000001">&micro;L</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="buttons">
+    <button type="button" class="copy-btn" id="m2-copy">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+      <span id="m2-copy-label">Copy Result</span>
+    </button>
+    <button type="button" class="pdf-btn" id="m2-pdf">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      <span id="m2-pdf-label">Save PDF</span>
+    </button>
+    <button type="button" class="reset-btn" onclick="resetMass()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      Reset
+    </button>
+</div>
+
+        <div class="result empty" id="m2-result">
+          <div class="result-label">Mass to weigh</div>
+          <div class="result-value"><span id="m2-value">Enter values to calculate</span></div>
+          <div class="steps" id="m2-steps"></div>
+        </div>
+      </section>
+
+      <!-- MODE 3: Dilution -->
+      <section id="mode-dilution" style="display:none;">
+        <h2>Dilute a stock solution</h2>
+        <p class="desc">Leave exactly one field blank &mdash; the calculator solves for it using C&#8321;V&#8321; = C&#8322;V&#8322;.</p>
+        <div class="field-grid">
+          <div class="field">
+            <label for="d-c1">Stock concentration (C&#8321;)</label>
+            <div class="input-row">
+              <input type="number" id="d-c1" inputmode="decimal" placeholder="0.00" step="any" min="0">
+              <select id="d-c1-unit"><option value="1">M</option><option value="0.001">mM</option></select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="d-v1">Stock volume to take (V&#8321;)</label>
+            <div class="input-row">
+              <input type="number" id="d-v1" inputmode="decimal" placeholder="leave blank to solve" step="any" min="0">
+              <select id="d-v1-unit"><option value="1">L</option><option value="0.001" selected>mL</option></select>
+            </div>
+          </div>
+          <div class="divider">dilute to</div>
+          <div class="field">
+            <label for="d-c2">Final concentration (C&#8322;)</label>
+            <div class="input-row">
+              <input type="number" id="d-c2" inputmode="decimal" placeholder="0.00" step="any" min="0">
+              <select id="d-c2-unit"><option value="1">M</option><option value="0.001">mM</option></select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="d-v2">Final volume (V&#8322;)</label>
+            <div class="input-row">
+              <input type="number" id="d-v2" inputmode="decimal" placeholder="leave blank to solve" step="any" min="0">
+              <select id="d-v2-unit"><option value="1">L</option><option value="0.001" selected>mL</option></select>
+            </div>
+          </div>
+        </div>
+        <div class="buttons">
+    <button type="button" class="copy-btn" id="d-copy">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+      <span id="d-copy-label">Copy Result</span>
+    </button>
+    <button type="button" class="pdf-btn" id="d-pdf">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      <span id="d-pdf-label">Save PDF</span>
+    </button>
+    <button type="button" class="reset-btn" onclick="resetDilution()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      Reset
+    </button>
+</div>
+
+        <div class="result empty" id="d-result">
+          <div class="result-label">Solving for&hellip;</div>
+          <div class="result-value"><span id="d-value">Leave one field blank to calculate</span></div>
+          <div class="steps" id="d-steps"></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Signature element: graduated cylinder fills with current volume -->
+    <div class="cylinder-col">
+      <svg width="90" height="220" viewBox="0 0 90 220" aria-hidden="true">
+        <!-- outer glass -->
+        <path d="M28 8 H62 V26 L70 190 Q70 206 45 206 Q20 206 20 190 L28 26 Z"
+              fill="none" stroke="#9fb2ae" stroke-width="2"/>
+        <!-- lip -->
+        <rect x="24" y="6" width="42" height="8" rx="2" fill="none" stroke="#9fb2ae" stroke-width="2"/>
+        <!-- liquid fill -->
+        <clipPath id="cylClip">
+          <path d="M28 8 H62 V26 L70 190 Q70 206 45 206 Q20 206 20 190 L28 26 Z"/>
+        </clipPath>
+        <g clip-path="url(#cylClip)">
+          <rect id="cyl-fill" class="fill" x="16" y="200" width="58" height="0" fill="#2f8a7d" opacity="0.75"/>
+        </g>
+        <!-- graduation marks -->
+        <g stroke="#b7c4c1" stroke-width="1.4">
+          <line x1="20" y1="60"  x2="30" y2="60"/>
+          <line x1="20" y1="95"  x2="34" y2="95"/>
+          <line x1="20" y1="130" x2="30" y2="130"/>
+          <line x1="20" y1="165" x2="34" y2="165"/>
+        </g>
+        <g fill="#8a9895" font-family="IBM Plex Mono, monospace" font-size="9">
+          <text x="36" y="98">50</text>
+          <text x="36" y="168">25</text>
+        </g>
+      </svg>
+      <div class="cylinder-caption">Fill level tracks<br><b id="cyl-caption">final volume</b></div>
+    </div>
+  </div>
+
+  <footer>
+
+<h3>🧪 BioCalc Lab</h3>
+
+<p>Professional Laboratory Calculators
+for Students • Researchers • Scientists.</p>
+
 <hr>
 
-<p class="footer">
-    Created by <strong>Maha</strong><br>
-    BS Biochemistry Student
+<p>
+Developed by <strong>Maha</strong>
+</p>
+<p>
+© 2026 BioCalc Lab • All Rights Reserved
 </p>
 
-    <script src="script.js"></script>
+</footer>
 
+<!-- Printable report, populated by JS just before printing/saving as PDF -->
+<div id="print-report">
+  <div class="pr-head">
+    <h1>&#129514; BioCalc Lab</h1>
+    <span id="pr-datetime"></span>
+  </div>
+  <div class="pr-section-title" id="pr-mode-title">Calculation</div>
+  <table class="pr-inputs" id="pr-inputs"></table>
+  <div class="pr-section-title">Result</div>
+  <div class="pr-result">
+    <div class="pr-result-label" id="pr-result-label">Result</div>
+    <div class="pr-result-value" id="pr-result-value"></div>
+  </div>
+  <div class="pr-steps" id="pr-steps"></div>
+  <div class="pr-footer">Generated by BioCalc Lab &middot; Developed by Maha &middot; For lab bench estimates, confirm critical dilutions against your protocol.</div>
+</div>
+</div>
+
+<script>
+(function(){
+  const tabs = document.querySelectorAll('.tab');
+  const modes = {
+    molarity: document.getElementById('mode-molarity'),
+    mass: document.getElementById('mode-mass'),
+    dilution: document.getElementById('mode-dilution'),
+  };
+  const cylCaption = document.getElementById('cyl-caption');
+  const cylFill = document.getElementById('cyl-fill');
+  const MAX_FILL_H = 140; // px inside cylinder
+
+  function setActive(mode){
+    tabs.forEach(t=>{
+      const on = t.dataset.mode === mode;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on ? 'true':'false');
+    });
+    Object.entries(modes).forEach(([k,el])=> el.style.display = (k===mode) ? '' : 'none');
+    cylCaption.textContent = mode === 'dilution' ? 'final volume (V\u2082)' : 'final volume';
+    updateAll();
+  }
+
+  tabs.forEach(t=>{
+    t.addEventListener('click', ()=> setActive(t.dataset.mode));
+    t.addEventListener('keydown', e=>{
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); setActive(t.dataset.mode); }
+    });
+  });
+
+  function fmt(n){
+    if(!isFinite(n)) return '—';
+    if(n === 0) return '0';
+    const abs = Math.abs(n);
+    if(abs < 0.001 || abs >= 100000) return n.toExponential(3);
+    return Number(n.toPrecision(5)).toString();
+  }
+
+  function pickMassUnit(grams){
+    if(grams < 0.001) return {v: grams*1e6, u: 'µg'};
+    if(grams < 1) return {v: grams*1000, u: 'mg'};
+    if(grams >= 1000) return {v: grams/1000, u: 'kg'};
+    return {v: grams, u: 'g'};
+  }
+  function pickConcUnit(M){
+    if(M < 0.001) return {v: M*1e6, u: 'µM'};
+    if(M < 1) return {v: M*1000, u: 'mM'};
+    return {v: M, u: 'M'};
+  }
+  function pickVolUnit(L){
+    if(L < 0.001) return {v: L*1e6, u: 'µL'};
+    if(L < 1) return {v: L*1000, u: 'mL'};
+    return {v: L, u: 'L'};
+  }
+
+  function fillCylinder(liters){
+    if(!isFinite(liters) || liters <= 0){ cylFill.setAttribute('height', 0); cylFill.setAttribute('y', 200); return; }
+    // logarithmic-ish scale so both 1 mL and 1 L show something reasonable, capped
+    const ratio = Math.min(1, Math.log10(liters*1000 + 1) / Math.log10(1000)); // 1mL..1L range visual
+    const h = Math.max(4, ratio * MAX_FILL_H);
+    cylFill.setAttribute('height', h);
+    cylFill.setAttribute('y', 200 - h);
+  }
+
+  // ---- MODE 1: molarity from mass ----
+  function calcMolarity(){
+    const mass = parseFloat(document.getElementById('m1-mass').value);
+    const massUnit = parseFloat(document.getElementById('m1-mass-unit').value);
+    const mw = parseFloat(document.getElementById('m1-mw').value);
+    const vol = parseFloat(document.getElementById('m1-vol').value);
+    const volUnit = parseFloat(document.getElementById('m1-vol-unit').value);
+
+    const valueEl = document.getElementById('m1-value');
+    const resultEl = document.getElementById('m1-result');
+    const stepsEl = document.getElementById('m1-steps');
+
+    if(!(mass>0) || !(mw>0) || !(vol>0)){
+      resultEl.classList.add('empty');
+      valueEl.textContent = 'Enter values to calculate';
+      stepsEl.innerHTML = '';
+      fillCylinder(NaN);
+      return;
+    }
+    resultEl.classList.remove('empty');
+    const massG = mass * massUnit;
+    const volL = vol * volUnit;
+    const moles = massG / mw;
+    const conc = moles / volL;
+    const c = pickConcUnit(conc);
+
+    valueEl.innerHTML = fmt(c.v) + ' <span class="unit">' + c.u + '</span>';
+    stepsEl.innerHTML =
+      'n = mass / MW = ' + fmt(massG) + ' g &divide; ' + fmt(mw) + ' g/mol = <span>' + fmt(moles) + ' mol</span><br>' +
+      'C = n / V = ' + fmt(moles) + ' mol &divide; ' + fmt(volL) + ' L = <span>' + fmt(conc) + ' M</span>';
+    fillCylinder(volL);
+  }
+  ['m1-mass','m1-mass-unit','m1-mw','m1-vol','m1-vol-unit'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', calcMolarity);
+  });
+
+  // ---- MODE 2: mass needed ----
+  function calcMass(){
+    const conc = parseFloat(document.getElementById('m2-conc').value);
+    const concUnit = parseFloat(document.getElementById('m2-conc-unit').value);
+    const mw = parseFloat(document.getElementById('m2-mw').value);
+    const vol = parseFloat(document.getElementById('m2-vol').value);
+    const volUnit = parseFloat(document.getElementById('m2-vol-unit').value);
+
+    const valueEl = document.getElementById('m2-value');
+    const resultEl = document.getElementById('m2-result');
+    const stepsEl = document.getElementById('m2-steps');
+
+    if(!(conc>0) || !(mw>0) || !(vol>0)){
+      resultEl.classList.add('empty');
+      valueEl.textContent = 'Enter values to calculate';
+      stepsEl.innerHTML = '';
+      fillCylinder(NaN);
+      return;
+    }
+    resultEl.classList.remove('empty');
+    const concM = conc * concUnit;
+    const volL = vol * volUnit;
+    const moles = concM * volL;
+    const massG = moles * mw;
+    const m = pickMassUnit(massG);
+
+    valueEl.innerHTML = fmt(m.v) + ' <span class="unit">' + m.u + '</span>';
+    stepsEl.innerHTML =
+      'n = C &times; V = ' + fmt(concM) + ' M &times; ' + fmt(volL) + ' L = <span>' + fmt(moles) + ' mol</span><br>' +
+      'm = n &times; MW = ' + fmt(moles) + ' mol &times; ' + fmt(mw) + ' g/mol = <span>' + fmt(massG) + ' g</span>';
+    fillCylinder(volL);
+  }
+  ['m2-conc','m2-conc-unit','m2-mw','m2-vol','m2-vol-unit'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', calcMass);
+  });
+
+  // ---- MODE 3: dilution ----
+  function calcDilution(){
+    const c1i = document.getElementById('d-c1');
+    const v1i = document.getElementById('d-v1');
+    const c2i = document.getElementById('d-c2');
+    const v2i = document.getElementById('d-v2');
+    const c1u = parseFloat(document.getElementById('d-c1-unit').value);
+    const v1u = parseFloat(document.getElementById('d-v1-unit').value);
+    const c2u = parseFloat(document.getElementById('d-c2-unit').value);
+    const v2u = parseFloat(document.getElementById('d-v2-unit').value);
+
+    const labelEl = document.querySelector('#d-result .result-label');
+    const valueEl = document.getElementById('d-value');
+    const resultEl = document.getElementById('d-result');
+    const stepsEl = document.getElementById('d-steps');
+
+    const raw = [c1i.value, v1i.value, c2i.value, v2i.value];
+    const blanks = raw.filter(v => v.trim()==='').length;
+
+    if(blanks !== 1){
+      resultEl.classList.add('empty');
+      labelEl.textContent = 'Solving for…';
+      valueEl.textContent = blanks === 0
+        ? 'Clear one field to solve for it'
+        : 'Leave exactly one field blank to calculate';
+      stepsEl.innerHTML = '';
+      fillCylinder(NaN);
+      return;
+    }
+    resultEl.classList.remove('empty');
+
+    const c1 = parseFloat(c1i.value) * c1u;
+    const v1 = parseFloat(v1i.value) * v1u;
+    const c2 = parseFloat(c2i.value) * c2u;
+    const v2 = parseFloat(v2i.value) * v2u;
+
+    let solved, unitInfo, name, eqLine, warn = '';
+
+    if(v1i.value.trim()===''){
+      solved = (c2*v2)/c1;
+      unitInfo = pickVolUnit(solved);
+      name = 'Stock volume (V\u2081)';
+      eqLine = 'V\u2081 = C\u2082V\u2082 / C\u2081 = (' + fmt(c2) + ' M &times; ' + fmt(v2) + ' L) &divide; ' + fmt(c1) + ' M';
+      if(solved > v2) warn = 'V\u2081 exceeds V\u2082 — check that C\u2081 is actually higher than C\u2082.';
+    } else if(v2i.value.trim()===''){
+      solved = (c1*v1)/c2;
+      unitInfo = pickVolUnit(solved);
+      name = 'Final volume (V\u2082)';
+      eqLine = 'V\u2082 = C\u2081V\u2081 / C\u2082 = (' + fmt(c1) + ' M &times; ' + fmt(v1) + ' L) &divide; ' + fmt(c2) + ' M';
+      if(solved < v1) warn = 'V\u2082 is smaller than V\u2081 — that would be concentrating, not diluting.';
+    } else if(c1i.value.trim()===''){
+      solved = (c2*v2)/v1;
+      unitInfo = pickConcUnit(solved);
+      name = 'Stock concentration (C\u2081)';
+      eqLine = 'C\u2081 = C\u2082V\u2082 / V\u2081 = (' + fmt(c2) + ' M &times; ' + fmt(v2) + ' L) &divide; ' + fmt(v1) + ' L';
+    } else {
+      solved = (c1*v1)/v2;
+      unitInfo = pickConcUnit(solved);
+      name = 'Final concentration (C\u2082)';
+      eqLine = 'C\u2082 = C\u2081V\u2081 / V\u2082 = (' + fmt(c1) + ' M &times; ' + fmt(v1) + ' L) &divide; ' + fmt(v2) + ' L';
+    }
+
+    labelEl.textContent = 'Solving for ' + name;
+    valueEl.innerHTML = fmt(unitInfo.v) + ' <span class="unit">' + unitInfo.u + '</span>';
+    stepsEl.innerHTML = eqLine + ' = <span>' + fmt(unitInfo.v) + ' ' + unitInfo.u + '</span>' +
+      (warn ? '<div class="result-note warn" style="margin-top:8px;">&#9888; ' + warn + '</div>' : '');
+
+    const v2Final = v2i.value.trim()==='' ? solved : v2;
+    fillCylinder(v2Final);
+  }
+  ['d-c1','d-v1','d-c2','d-v2','d-c1-unit','d-v1-unit','d-c2-unit','d-v2-unit'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', calcDilution);
+  });
+
+  function updateAll(){
+    calcMolarity();
+    calcMass();
+    calcDilution();
+  }
+  function resetMolarity(){
+    document.getElementById("m1-mass").value="";
+    document.getElementById("m1-mw").value="";
+    document.getElementById("m1-vol").value="";
+    const r = document.getElementById("m1-reagent");
+    if(r) r.value = "";
+    calcMolarity();
+  }
+
+  function resetMass(){
+    document.getElementById("m2-conc").value="";
+    document.getElementById("m2-mw").value="";
+    document.getElementById("m2-vol").value="";
+    const r = document.getElementById("m2-reagent");
+    if(r) r.value = "";
+    calcMass();
+  }
+
+  function resetDilution(){
+    document.getElementById("d-c1").value="";
+    document.getElementById("d-v1").value="";
+    document.getElementById("d-c2").value="";
+    document.getElementById("d-v2").value="";
+    calcDilution();
+  }
+
+  // Expose to global scope so the onclick="" attributes on the Reset
+  // buttons can find these functions (they're defined inside this closure).
+  window.resetMolarity = resetMolarity;
+  window.resetMass = resetMass;
+  window.resetDilution = resetDilution;
+
+  // ---- FEATURE: Common reagent quick-fill ----
+  const REAGENTS = [
+    { name: 'Sodium Chloride (NaCl)', mw: 58.44 },
+    { name: 'Tris base', mw: 121.14 },
+    { name: 'EDTA disodium salt', mw: 372.24 },
+    { name: 'D-Glucose', mw: 180.16 },
+    { name: 'Sodium Hydroxide (NaOH)', mw: 40.00 },
+    { name: 'Potassium Chloride (KCl)', mw: 74.55 },
+    { name: 'Calcium Chloride (CaCl\u2082)', mw: 110.98 },
+    { name: 'Magnesium Chloride (MgCl\u2082)', mw: 95.21 },
+    { name: 'Sodium Bicarbonate (NaHCO\u2083)', mw: 84.01 },
+    { name: 'Glycine', mw: 75.07 },
+    { name: 'Urea', mw: 60.06 },
+    { name: 'Sucrose', mw: 342.30 },
+    { name: 'SDS', mw: 288.38 },
+    { name: 'HEPES', mw: 238.30 },
+    { name: 'Potassium Phosphate monobasic (KH\u2082PO\u2084)', mw: 136.09 },
+    { name: 'Sodium Phosphate dibasic (Na\u2082HPO\u2084)', mw: 141.96 },
+  ];
+
+  function populateReagentSelect(select){
+    REAGENTS.forEach(r=>{
+      const opt = document.createElement('option');
+      opt.value = r.mw;
+      opt.textContent = r.name + ' \u2014 ' + r.mw + ' g/mol';
+      select.appendChild(opt);
+    });
+  }
+
+  function wireQuickFill(selectId, mwInputId, recalc){
+    const sel = document.getElementById(selectId);
+    const mwInput = document.getElementById(mwInputId);
+    if(!sel || !mwInput) return;
+    populateReagentSelect(sel);
+    sel.addEventListener('change', ()=>{
+      if(sel.value){
+        mwInput.value = sel.value;
+        recalc();
+      }
+    });
+    // If user edits MW manually, drop back to "custom" so the dropdown doesn't lie
+    mwInput.addEventListener('input', ()=>{
+      if(sel.value && parseFloat(sel.value) !== parseFloat(mwInput.value)){
+        sel.value = '';
+      }
+    });
+  }
+  wireQuickFill('m1-reagent', 'm1-mw', calcMolarity);
+  wireQuickFill('m2-reagent', 'm2-mw', calcMass);
+
+  // ---- FEATURE: Copy result to clipboard ----
+  function copyText(text, btn, labelEl){
+    const finish = (ok)=>{
+      const original = labelEl.textContent;
+      labelEl.textContent = ok ? 'Copied!' : 'Copy failed';
+      btn.classList.toggle('copied', ok);
+      setTimeout(()=>{
+        labelEl.textContent = original;
+        btn.classList.remove('copied');
+      }, 1500);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(()=>finish(true)).catch(()=>finish(false));
+    } else {
+      try{
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        finish(true);
+      } catch(e){ finish(false); }
+    }
+  }
+
+  function plainText(html){
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent.replace(/\s+/g,' ').trim();
+  }
+
+  function setupCopyButton(btnId, labelId, resultId, valueId, stepsId, modeName){
+    const btn = document.getElementById(btnId);
+    if(!btn) return;
+    const labelEl = document.getElementById(labelId);
+    btn.addEventListener('click', ()=>{
+      const resultEl = document.getElementById(resultId);
+      if(resultEl.classList.contains('empty')){
+        copyText('', btn, labelEl);
+        labelEl.textContent = 'Nothing to copy';
+        setTimeout(()=>{ labelEl.textContent = 'Copy Result'; }, 1500);
+        return;
+      }
+      const value = plainText(document.getElementById(valueId).innerHTML);
+      const steps = plainText(document.getElementById(stepsId).innerHTML.replace(/<br\s*\/?>/g,'\n'));
+      const text = modeName + '\nResult: ' + value + (steps ? '\n\n' + steps : '');
+      copyText(text, btn, labelEl);
+      addHistoryEntry(modeName, value);
+    });
+  }
+  setupCopyButton('m1-copy','m1-copy-label','m1-result','m1-value','m1-steps','Molarity from mass');
+  setupCopyButton('m2-copy','m2-copy-label','m2-result','m2-value','m2-steps','Mass to weigh out');
+  setupCopyButton('d-copy','d-copy-label','d-result','d-value','d-steps','Dilution');
+
+  // ---- FEATURE: Export result as PDF (via browser print-to-PDF) ----
+  function unitLabel(selectEl){
+    if(!selectEl) return '';
+    return selectEl.options[selectEl.selectedIndex].textContent;
+  }
+
+  function gatherMolarityInputs(){
+    return [
+      ['Mass of solute', document.getElementById('m1-mass').value + ' ' + unitLabel(document.getElementById('m1-mass-unit'))],
+      ['Molar weight (MW)', document.getElementById('m1-mw').value + ' g/mol'],
+      ['Final volume', document.getElementById('m1-vol').value + ' ' + unitLabel(document.getElementById('m1-vol-unit'))],
+    ];
+  }
+  function gatherMassInputs(){
+    return [
+      ['Target molarity', document.getElementById('m2-conc').value + ' ' + unitLabel(document.getElementById('m2-conc-unit'))],
+      ['Molar weight (MW)', document.getElementById('m2-mw').value + ' g/mol'],
+      ['Final volume', document.getElementById('m2-vol').value + ' ' + unitLabel(document.getElementById('m2-vol-unit'))],
+    ];
+  }
+  function gatherDilutionInputs(){
+    const fields = [
+      ['Stock concentration (C\u2081)', 'd-c1', 'd-c1-unit'],
+      ['Stock volume (V\u2081)', 'd-v1', 'd-v1-unit'],
+      ['Final concentration (C\u2082)', 'd-c2', 'd-c2-unit'],
+      ['Final volume (V\u2082)', 'd-v2', 'd-v2-unit'],
+    ];
+    return fields.map(([label, valId, unitId])=>{
+      const v = document.getElementById(valId).value;
+      return [label, v === '' ? '\u2014 (solved for)' : v + ' ' + unitLabel(document.getElementById(unitId))];
+    });
+  }
+
+  function exportPDF(resultId, valueId, stepsId, modeTitle, inputsGetter, btnLabelEl){
+    const resultEl = document.getElementById(resultId);
+    if(resultEl.classList.contains('empty')){
+      const original = btnLabelEl.textContent;
+      btnLabelEl.textContent = 'Nothing to export';
+      setTimeout(()=>{ btnLabelEl.textContent = original; }, 1500);
+      return;
+    }
+    document.getElementById('pr-datetime').textContent = new Date().toLocaleString([], {dateStyle:'medium', timeStyle:'short'});
+    document.getElementById('pr-mode-title').textContent = modeTitle;
+    document.getElementById('pr-inputs').innerHTML = inputsGetter().map(([label, val])=>
+      '<tr><td>' + label + '</td><td>' + val + '</td></tr>'
+    ).join('');
+    const resultLabelText = document.querySelector('#' + resultId + ' .result-label').textContent;
+    document.getElementById('pr-result-label').textContent = resultLabelText;
+    document.getElementById('pr-result-value').textContent = plainText(document.getElementById(valueId).innerHTML);
+    document.getElementById('pr-steps').textContent = plainText(
+      document.getElementById(stepsId).innerHTML.replace(/<br\s*\/?>/g,'\n')
+    );
+    window.print();
+  }
+
+  document.getElementById('m1-pdf').addEventListener('click', ()=>{
+    exportPDF('m1-result','m1-value','m1-steps','Molarity from Mass', gatherMolarityInputs, document.getElementById('m1-pdf-label'));
+  });
+  document.getElementById('m2-pdf').addEventListener('click', ()=>{
+    exportPDF('m2-result','m2-value','m2-steps','Mass to Weigh Out', gatherMassInputs, document.getElementById('m2-pdf-label'));
+  });
+  document.getElementById('d-pdf').addEventListener('click', ()=>{
+    exportPDF('d-result','d-value','d-steps','Dilution Calculation', gatherDilutionInputs, document.getElementById('d-pdf-label'));
+  });
+
+  // ---- FEATURE: Calculation history (saved in this browser) ----
+  const HISTORY_KEY = 'biocalc_lab_history';
+  const HISTORY_MAX = 8;
+
+  function loadHistory(){
+    try{ return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+    catch(e){ return []; }
+  }
+  function saveHistory(list){
+    try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  function renderHistory(){
+    const list = loadHistory();
+    const listEl = document.getElementById('history-list');
+    if(!list.length){
+      listEl.innerHTML = '<div class="history-empty">No calculations yet — results will appear here.</div>';
+      return;
+    }
+    listEl.innerHTML = list.map(item=>
+      '<div class="history-item">' +
+        '<span class="h-mode">' + item.mode + '</span>' +
+        '<span class="h-value">' + item.value + '</span>' +
+        '<span class="h-time">' + item.time + '</span>' +
+      '</div>'
+    ).join('');
+  }
+  function addHistoryEntry(mode, value){
+    const list = loadHistory();
+    const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    list.unshift({ mode, value, time });
+    while(list.length > HISTORY_MAX) list.pop();
+    saveHistory(list);
+    renderHistory();
+  }
+
+  const historyToggle = document.getElementById('history-toggle');
+  const historyPanel = document.getElementById('history-panel');
+  const historyToggleLabel = document.getElementById('history-toggle-label');
+  if(historyToggle){
+    historyToggle.addEventListener('click', ()=>{
+      const showing = historyPanel.style.display !== 'none';
+      historyPanel.style.display = showing ? 'none' : '';
+      historyToggleLabel.textContent = showing ? 'Show Recent Calculations' : 'Hide Recent Calculations';
+    });
+  }
+  const historyClear = document.getElementById('history-clear');
+  if(historyClear){
+    historyClear.addEventListener('click', ()=>{
+      saveHistory([]);
+      renderHistory();
+    });
+  }
+  renderHistory();
+
+  updateAll();
+})();
+</script>
 </body>
 </html>
