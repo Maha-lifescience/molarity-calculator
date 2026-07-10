@@ -177,12 +177,9 @@ line-height:1.5;
   .tab.active .label{color:var(--text);}
 
   /* Main layout: form + graduated cylinder signature */
-  .stage{
-    display:grid;
-    grid-template-columns:1fr 140px;
-    gap:20px;
-    align-items:start;
-  }
+ .stage{
+    display:block;
+}
   @media (max-width:720px){
     .stage{grid-template-columns:1fr;}
     .cylinder-col{order:-1; display:flex; justify-content:center;}
@@ -877,23 +874,6 @@ text-align:left;
 }
   .steps div span{color:var(--text-soft);}
 
-  /* Signature: graduated cylinder that fills based on volume */
-  .cylinder-col{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:14px;
-    padding-top:6px;
-  }
-  .cylinder-caption{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
-    color:var(--text-faint);
-    text-align:center;
-    letter-spacing:0.04em;
-  }
-  .cylinder-caption b{color:var(--amber); font-weight:500;}
-
  .footer{
 
 margin-top:50px;
@@ -1373,78 +1353,37 @@ Calculate solution molarity from the solute mass, molecular weight, and final so
       </section>
 
     </div>
-
-    <!-- Signature element: graduated cylinder fills with current volume -->
-    <div class="cylinder-col">
-      <svg width="90" height="220" viewBox="0 0 90 220" aria-hidden="true">
-        <!-- outer glass -->
-        <path d="M28 8 H62 V26 L70 190 Q70 206 45 206 Q20 206 20 190 L28 26 Z"
-              fill="none" stroke="#9fb2ae" stroke-width="2"/>
-        <!-- lip -->
-        <rect x="24" y="6" width="42" height="8" rx="2" fill="none" stroke="#9fb2ae" stroke-width="2"/>
-        <!-- liquid fill -->
-        <clipPath id="cylClip">
-          <path d="M28 8 H62 V26 L70 190 Q70 206 45 206 Q20 206 20 190 L28 26 Z"/>
-        </clipPath>
-        <g clip-path="url(#cylClip)">
-          <rect id="cyl-fill" class="fill" x="16" y="200" width="58" height="0" fill="#2f8a7d" opacity="0.75"/>
-        </g>
-        <!-- graduation marks -->
-        <g stroke="#b7c4c1" stroke-width="1.4">
-          <line x1="20" y1="60"  x2="30" y2="60"/>
-          <line x1="20" y1="95"  x2="34" y2="95"/>
-          <line x1="20" y1="130" x2="30" y2="130"/>
-          <line x1="20" y1="165" x2="34" y2="165"/>
-        </g>
-        <g fill="#8a9895" font-family="IBM Plex Mono, monospace" font-size="9">
-          <text x="36" y="98">50</text>
-          <text x="36" y="168">25</text>
-        </g>
-      </svg>
-      <div class="cylinder-caption">Fill level tracks<br><b id="cyl-caption">final volume</b></div>
-    </div>
-  </div>
-
-  
-
 <footer class="footer">
 
-<div class="footer-logo">
-🧪 BioCalc Lab
-</div>
+    <div class="footer-logo">
+        🧪 BioCalc Lab
+    </div>
 
-<p class="footer-tagline">
-Professional Laboratory Calculators
-</p>
+    <p class="footer-tagline">
+        Professional Laboratory Calculators
+    </p>
 
-<div class="footer-divider"></div>
+    <div class="footer-links">
+        <a href="#">🌐 Website</a>
+    </div>
 
-<div class="footer-author">
-👩‍🔬 Developed by
-<strong>Maha Amjad</strong>
-</div>
+    <p class="footer-dev">
+        👩‍🔬 Developed by <strong>Maha</strong>
+    </p>
 
-<div class="footer-links">
+    <div class="footer-features">
+        <span>⚡ Fast</span>
+        <span>🧪 Accurate</span>
+        <span>📱 Mobile Friendly</span>
+        <span>🎓 Student Focused</span>
+    </div>
 
-<a href="#">🌐 Website</a>
-
-<a href="#">📧 Contact</a>
-
-<a href="#">⭐ Rate App</a>
-
-</div>
-
-<div class="footer-divider"></div>
-
-<p class="footer-copy">
-
-© 2026 BioCalc Lab
-
-<br>
-
-All Rights Reserved
-
-</p>
+    <div class="footer-bottom">
+        <p>Version 1.0</p>
+        <p class="footer-copy">
+            © 2026 BioCalc Lab
+        </p>
+    </div>
 
 </footer>
 
@@ -1474,10 +1413,7 @@ All Rights Reserved
     mass: document.getElementById('mode-mass'),
     dilution: document.getElementById('mode-dilution'),
   };
-  const cylCaption = document.getElementById('cyl-caption');
-  const cylFill = document.getElementById('cyl-fill');
-  const MAX_FILL_H = 140; // px inside cylinder
-
+ 
   function setActive(mode){
     tabs.forEach(t=>{
       const on = t.dataset.mode === mode;
@@ -1485,7 +1421,6 @@ All Rights Reserved
       t.setAttribute('aria-selected', on ? 'true':'false');
     });
     Object.entries(modes).forEach(([k,el])=> el.style.display = (k===mode) ? '' : 'none');
-    cylCaption.textContent = mode === 'dilution' ? 'final volume (V\u2082)' : 'final volume';
     updateAll();
   }
 
@@ -1521,14 +1456,7 @@ All Rights Reserved
     return {v: L, u: 'L'};
   }
 
-  function fillCylinder(liters){
-    if(!isFinite(liters) || liters <= 0){ cylFill.setAttribute('height', 0); cylFill.setAttribute('y', 200); return; }
-    // logarithmic-ish scale so both 1 mL and 1 L show something reasonable, capped
-    const ratio = Math.min(1, Math.log10(liters*1000 + 1) / Math.log10(1000)); // 1mL..1L range visual
-    const h = Math.max(4, ratio * MAX_FILL_H);
-    cylFill.setAttribute('height', h);
-    cylFill.setAttribute('y', 200 - h);
-  }
+ 
 
   // ---- MODE 1: molarity from mass ----
   function calcMolarity(){
@@ -1546,7 +1474,6 @@ All Rights Reserved
       resultEl.classList.add('empty');
       valueEl.textContent = 'Enter values to calculate';
       stepsEl.innerHTML = '';
-      fillCylinder(NaN);
       return;
     }
     resultEl.classList.remove('empty');
@@ -1560,7 +1487,6 @@ All Rights Reserved
     stepsEl.innerHTML =
       'n = mass / MW = ' + fmt(massG) + ' g &divide; ' + fmt(mw) + ' g/mol = <span>' + fmt(moles) + ' mol</span><br>' +
       'C = n / V = ' + fmt(moles) + ' mol &divide; ' + fmt(volL) + ' L = <span>' + fmt(conc) + ' M</span>';
-    fillCylinder(volL);
   }
   ['m1-mass','m1-mass-unit','m1-mw','m1-vol','m1-vol-unit'].forEach(id=>{
     document.getElementById(id).addEventListener('input', calcMolarity);
@@ -1582,7 +1508,7 @@ All Rights Reserved
       resultEl.classList.add('empty');
       valueEl.textContent = 'Enter values to calculate';
       stepsEl.innerHTML = '';
-      fillCylinder(NaN);
+     
       return;
     }
     resultEl.classList.remove('empty');
@@ -1596,7 +1522,7 @@ All Rights Reserved
     stepsEl.innerHTML =
       'n = C &times; V = ' + fmt(concM) + ' M &times; ' + fmt(volL) + ' L = <span>' + fmt(moles) + ' mol</span><br>' +
       'm = n &times; MW = ' + fmt(moles) + ' mol &times; ' + fmt(mw) + ' g/mol = <span>' + fmt(massG) + ' g</span>';
-    fillCylinder(volL);
+    
   }
   ['m2-conc','m2-conc-unit','m2-mw','m2-vol','m2-vol-unit'].forEach(id=>{
     document.getElementById(id).addEventListener('input', calcMass);
@@ -1628,7 +1554,7 @@ All Rights Reserved
         ? 'Clear one field to solve for it'
         : 'Leave exactly one field blank to calculate';
       stepsEl.innerHTML = '';
-      fillCylinder(NaN);
+  
       return;
     }
     resultEl.classList.remove('empty');
@@ -1670,7 +1596,6 @@ All Rights Reserved
       (warn ? '<div class="result-note warn" style="margin-top:8px;">&#9888; ' + warn + '</div>' : '');
 
     const v2Final = v2i.value.trim()==='' ? solved : v2;
-    fillCylinder(v2Final);
   }
   ['d-c1','d-v1','d-c2','d-v2','d-c1-unit','d-v1-unit','d-c2-unit','d-v2-unit'].forEach(id=>{
     document.getElementById(id).addEventListener('input', calcDilution);
