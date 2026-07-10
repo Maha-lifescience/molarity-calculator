@@ -23,7 +23,12 @@
     --radius:10px;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+ html,
+body{
+    margin:0;
+    padding:0;
+    overflow-x:hidden;
+}
  body{
     background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);
     color:var(--text);
@@ -32,7 +37,12 @@
 
     padding:20px 12px 40px;
 }
-  .wrap{max-width:1200px;margin:0 auto;}
+ .wrap{
+    width:100%;
+    max-width:1200px;
+    margin:auto;
+    padding:0 12px;
+}
 
  header.masthead{
     display:flex;
@@ -192,6 +202,11 @@ line-height:1.5;
     padding:28px;
     box-shadow:0 20px 50px rgba(0,0,0,.08);
 }
+.panel{
+    width:100%;
+    max-width:100%;
+    overflow:hidden;
+}
 @media(max-width:768px){
 
 .panel{
@@ -284,24 +299,31 @@ color:#334155;
 margin-bottom:4px;
 
 }
- ..field .input-row{
-
+ .field .input-row{
     display:flex;
-
     align-items:center;
-
-    background:#ffffff;
-
+    width:100%;
     border:2px solid #e5e7eb;
-
     border-radius:18px;
-
     overflow:hidden;
+    background:#fff;
+}
 
-    transition:all .3s ease;
+.field .input-row input{
+    flex:1;
+    width:100%;
+    min-width:0;
+    border:none;
+    padding:15px;
+    font-size:16px;
+}
 
-    box-shadow:0 4px 12px rgba(0,0,0,.04);
-
+.field .input-row select{
+    width:90px;
+    flex-shrink:0;
+    border:none;
+    border-left:1px solid #e5e7eb;
+    background:#f8fafc;
 }
  .field .input-row:focus-within{
 
@@ -550,29 +572,17 @@ min-height:56px;
   }
 
  .quickfill{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+}
 
-grid-column:1/-1;
-
-display:flex;
-
-align-items:center;
-
-gap:14px;
-
-padding:18px;
-
-background:linear-gradient(135deg,#f8f6ff,#ffffff);
-
-border:2px solid #ebe3ff;
-
-border-radius:20px;
-
-box-shadow:0 8px 20px rgba(101,19,253,.08);
-
-margin-bottom:20px;
-
-transition:.3s;
-
+.quickfill select{
+    flex:1;
+    width:100%;
+    min-width:0;
 }
 .quickfill:hover{
 
@@ -1107,6 +1117,52 @@ text-align:center;
 
 align-self:center;
 
+}
+
+}
+@media (max-width:768px){
+
+.wrap{
+    padding:0 12px;
+}
+
+.panel{
+    width:100%;
+    max-width:100%;
+}
+
+.field-grid{
+    grid-template-columns:1fr;
+}
+
+.field{
+    width:100%;
+}
+
+.field .input-row{
+    width:100%;
+}
+
+.field input{
+    width:100%;
+    min-width:0;
+}
+
+.field select{
+    width:90px;
+    flex-shrink:0;
+}
+
+.quickfill{
+    width:100%;
+}
+
+.quickfill select{
+    width:100%;
+}
+
+.result{
+    width:100%;
 }
 
 }
