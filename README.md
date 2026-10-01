@@ -41,7 +41,7 @@ molarity-calculator/
 
 ## Built With
 
-HTML, CSS, and JavaScript. Calculation history is stored using the browser's localStorage, so no data is sent to any server.
+HTML, CSS, and JavaScript and AI tools. Calculation history is stored using the browser's localStorage, so no data is sent to any server.
 
 ## Please Note
 
